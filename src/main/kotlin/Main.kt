@@ -6,9 +6,6 @@ import java.io.InputStreamReader
 import java.io.BufferedReader
 import org.json.JSONObject
 import java.util.*
-import kotlin.system.exitProcess
-
-
 
 fun main() {
     try {
@@ -16,23 +13,16 @@ fun main() {
         println("Welcome to the Weather App")
         print("Enter your API Key: ")
         val apiKey = readln()
-        if (apiKey.isBlank()) {
-            println("API Key can be accessed here -> https://openweathermap.org/api ")
-            exitProcess(0)
-        }
+        validatingAPIKey(apiKey)
 
         // City
         print("Enter a city: ")
         var city: String = readln()
         city = formatCity(city)
-        // Preferred Temp
-        print("Fahrenheit or Celsius? (F/C): ")
-        var userInput = readln()
-        userInput = formatUserInput(userInput)
-
-        val url = "https://api.openweathermap.org/data/2.5/weather?q=$city&appid=$apiKey"
+        validatingCity(city,apiKey)
 
         // Open Connection
+        val url = "https://api.openweathermap.org/data/2.5/weather?q=$city&appid=$apiKey"
         val connection = URL(url).openConnection() as HttpURLConnection
         connection.requestMethod = "GET"
 
@@ -67,7 +57,7 @@ fun main() {
             val humidity = mainObject.getInt("humidity")
 
             // Display Info
-            printWeatherInfo(temp, feelsLike, tempMin, tempMax, humidity,degreeSymbol,userInput,cityName,jsonResponse)
+            printWeatherInfo(temp, feelsLike, tempMin, tempMax, humidity,degreeSymbol,cityName,jsonResponse)
         }
 
         // Close Connection
@@ -84,5 +74,4 @@ fun main() {
     catch (e: JSONException) {
         println("Error: Invalid response from the server.")
     }
-
 }

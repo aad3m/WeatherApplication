@@ -1,29 +1,7 @@
 // Allows for printing the details within a single line
 import org.json.JSONObject
+import java.util.*
 
-// Format Text
-fun formatUserInput(userInput: String) : String{
-    val formattedUserInput = userInput.uppercase()
-    return formattedUserInput
-}
-fun formatCity(city: String) : String {
-    var formattedCity = city.lowercase()
-    formattedCity = formattedCity.replaceFirstChar { it.titlecase() }
-    if (formattedCity.contains(" ")) {
-        formattedCity = formattedCity.split(" ").joinToString("+") { it.lowercase().capitalize() }
-    }
-    return formattedCity
-}
-
-
-
-// Convert Temp Function
-fun convertTemp(temp: Double, userInput: String?): Any {
-
-    return if (userInput.equals("C")) kelvinToCelsius(temp)
-    else if (userInput.equals("F") || userInput.equals("Fahrenheit")) kelvinToFahrenheit(temp)
-    else println("")
-}
 // Current Conditions Function
 fun getCurrentConditions(jsonResponse: JSONObject): String {
     val weatherArray = jsonResponse.getJSONArray("weather")
@@ -35,28 +13,47 @@ fun getCurrentConditions(jsonResponse: JSONObject): String {
     }
 }
 
+// Get User's Location
+fun getUserCountry(): String {
+    val country = Locale.getDefault().country
+    if (country == "US" || country == "LR") {
+        return "F"
+    }
+    else if (country == "BZ" || country == "BM") {
+        print("Fahrenheit or Celsius? (F/C): ")
+        var degreeSign = readln()
+        degreeSign = formatUserInput(degreeSign)
+        validatingDegree(degreeSign)
+        return degreeSign
+    }
+    else{
+        return "C"
+    }
+}
+
     // Weather Info Function
-    fun printWeatherInfo(temp: Double, feelsLike: Double, tempMin: Double, tempMax: Double, humidity: Int, degreeSymbol: String, userInput: String, cityName: String, weather: JSONObject) {
+    fun printWeatherInfo(temp: Double, feelsLike: Double, tempMin: Double, tempMax: Double, humidity: Int, degreeSymbol: String,cityName: String, weather: JSONObject) {
 
         println(
             "Weather in $cityName"
         )
         val conditions = getCurrentConditions(weather)
+        val countryCode = getUserCountry()
 
         println("Current Conditions: $conditions")
 
-        val formattedTemp = String.format("%.0f", convertTemp(temp, userInput))
-        val formattedFeelsLike = String.format("%.0f", convertTemp(feelsLike, userInput))
-        val formattedTempMin = String.format("%.0f", convertTemp(tempMin, userInput))
-        val formattedTempMax = String.format("%.0f", convertTemp(tempMax, userInput))
+        val formattedTemp = String.format("%.0f", convertTemp(temp, countryCode))
+        val formattedFeelsLike = String.format("%.0f", convertTemp(feelsLike, countryCode))
+        val formattedTempMin = String.format("%.0f", convertTemp(tempMin, countryCode))
+        val formattedTempMax = String.format("%.0f", convertTemp(tempMax, countryCode))
         println(
-            "Current Temperature: $formattedTemp$degreeSymbol$userInput"
+            "Current Temperature: $formattedTemp$degreeSymbol$countryCode"
         )
         println(
-            "Feels Like: $formattedFeelsLike$degreeSymbol$userInput"
+            "Feels Like: $formattedFeelsLike$degreeSymbol$countryCode"
         )
         println(
-            "Today's Low & High: $formattedTempMin$degreeSymbol$userInput / $formattedTempMax$degreeSymbol$userInput"
+            "Today's Low & High: $formattedTempMin$degreeSymbol$countryCode / $formattedTempMax$degreeSymbol$countryCode"
         )
         println("Humidity: $humidity%")
     }
